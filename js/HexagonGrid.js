@@ -1,4 +1,7 @@
-var MODULE = (function() {
+var GLOBALS = {
+    "DEBUG": true,
+};
+var GAME = (function() {
     var HexagonGrid = {
         "radius": null,
         "height": null,
@@ -6,28 +9,35 @@ var MODULE = (function() {
         "side": null,
         "canvas": document.getElementById("HexCanvas"),
         "ctx": null,
-        "rows": 20, 
-        "cols": 30,
+        "rows": 10, 
+        "cols": 10,
         "hexes": [],
         init: function() {
-            this.radius = 15;
+            this.radius = 20;
             this.side = Math.round((3 / 2) * this.radius);
             this.height = Math.round(Math.sqrt(3) * this.radius);
             this.width = Math.round(2 * this.radius);
+
+            //Set click eventlistener for canvas
+            this.canvas.addEventListener("mousedown", this.clickEvent.bind(this), false);
+
+            //Defines the hexes array, which provides the structure
+            this.defineHexGrid(this.rows, this.cols); 
+
             this.ctx = this.canvas.getContext('2d');
-            this.canvas.width = this.canvas.width; //clear canvas
-            if(this.hexes.length == 0){
-                this.defineHexGrid(this.rows, this.cols);
-            }
+
             //Draw base grid, then draw overlaid items on top
             this.drawHexGrid(this.rows, this.cols);
         },
+        draw: function(){
+            this.canvas.width = this.canvas.width; //clear canvas
+            this.drawHexGrid(this.rows, this.cols);
+        },
         defineHexGrid: function(rows, cols){
-            this.canvasOriginX = 0;
-            this.canvasOriginY = 0;
+            this.canvasOriginX = this.canvas.getBoundingClientRect().left;
+            this.canvasOriginY = this.canvas.getBoundingClientRect().top;
             var currentHexX;
             var currentHexY;
-            var debugText = "";
             var offsetColumn = false;
             for (var col = 0; col < cols; col++) {
                 this.hexes.push([]);
@@ -42,18 +52,26 @@ var MODULE = (function() {
                     this.hexes[col].push({
                         "highlighted": false,
                         "x": currentHexX,
-                        "y": currentHexY
+                        "y": currentHexY,
+                        "text": col + "," + row,
+                        "borders": {
+                            "n": null,
+                            "s": null,
+                            "nw": null,
+                            "sw": null,
+                            "ne": null,
+                            "se": null
+                        }
                     });
                 }
                 offsetColumn = !offsetColumn;
             }
-            //console.log(this.hexes);
         },
         drawHexGrid: function(rows, cols) {
             //base grid
             for(var i = 0; i < cols; i++){
                 for(var j = 0; j < rows; j++){
-                    this.drawHex(this.hexes[i][j].x, this.hexes[i][j].y, "#dddddd", "", false);
+                    this.drawHex(this.hexes[i][j].x, this.hexes[i][j].y, "#dddddd", this.hexes[i][j].text, false);
                 }
             }
 
@@ -61,16 +79,18 @@ var MODULE = (function() {
             for(var i = 0; i < cols; i++){
                 for(var j = 0; j < rows; j++){
                     if(this.hexes[i][j].highlighted == true){
-                        this.drawHex(this.hexes[i][j].x, this.hexes[i][j].y, "#dddddd", "", true);
-                        console.log(this.hexes[i][j]);
+                        this.drawHex(this.hexes[i][j].x, this.hexes[i][j].y, "#dddddd", this.hexes[i][j].text, true);
                     }
                 }
             } 
 
-            //Set click eventlistener for canvas
-            this.canvas.addEventListener("mousedown", this.clickEvent.bind(this), false);
+            if(GLOBALS.DEBUG == true){
+                console.log(this.hexes);
+            }
+            
+            
         },
-        drawHex: function(x0, y0, fillColor, debugText, highlight) {
+        drawHex: function(x0, y0, fillColor, hexText, highlight) {
             if (highlight == true) {
                 this.ctx.strokeStyle = "#00F2FF";
                 this.ctx.lineWidth = 4;
@@ -93,11 +113,14 @@ var MODULE = (function() {
             }
             this.ctx.closePath();
             this.ctx.stroke();
-            if (debugText) {
+            if (hexText) {
                 this.ctx.font = "5px";
                 this.ctx.fillStyle = "#000";
-                this.ctx.fillText(debugText, x0 + (this.width / 2) - (this.width / 4), y0 + (this.height - 5));
+                this.ctx.fillText(hexText, x0 + (this.width / 2) - (this.width / 4), y0 + (this.height - 5));
             }
+        },
+        drawHexBorders: function(){
+
         },
         getRelativeCanvasOffset: function() {
             var x = 0,
@@ -115,44 +138,57 @@ var MODULE = (function() {
             }
         },
         getSelectedTile: function(mouseX, mouseY) {
-            var offSet = this.getRelativeCanvasOffset();
-            mouseX -= offSet.x;
-            mouseY -= offSet.y;
+            var offSet = this.canvas.getBoundingClientRect();
+            mouseX -= offSet.left;
+            mouseY -= offSet.top;
+
             var column = Math.floor((mouseX) / this.side);
-            var row = Math.floor(column % 2 == 0 ? Math.floor((mouseY) / this.height) : Math.floor(((mouseY + (this.height * 0.5)) / this.height)) - 1);
-            //Test if on left side of frame
+            var row = Math.floor(column % 2 == 0 ? Math.floor((mouseY) / this.height): Math.floor(((mouseY + (this.height * 0.5)) / this.height)) - 1);
+
+            //Test if on left side of frame            
             if (mouseX > (column * this.side) && mouseX < (column * this.side) + this.width - this.side) {
-                //Now test which of the two triangles we are in
+                //Now test which of the two triangles we are in 
                 //Top left triangle points
                 var p1 = new Object();
                 p1.x = column * this.side;
-                p1.y = column % 2 == 0 ? row * this.height : (row * this.height) + (this.height / 2);
+                p1.y = column % 2 == 0
+                    ? row * this.height
+                    : (row * this.height) + (this.height / 2);
+
                 var p2 = new Object();
                 p2.x = p1.x;
                 p2.y = p1.y + (this.height / 2);
+
                 var p3 = new Object();
                 p3.x = p1.x + this.width - this.side;
                 p3.y = p1.y;
+
                 var mousePoint = new Object();
                 mousePoint.x = mouseX;
                 mousePoint.y = mouseY;
+
                 if (this.isPointInTriangle(mousePoint, p1, p2, p3)) {
                     column--;
                     if (column % 2 != 0) {
                         row--;
                     }
                 }
+
                 //Bottom left triangle points
                 var p4 = new Object();
                 p4 = p2;
+
                 var p5 = new Object();
                 p5.x = p4.x;
                 p5.y = p4.y + (this.height / 2);
+
                 var p6 = new Object();
                 p6.x = p5.x + (this.width - this.side);
                 p6.y = p5.y;
+
                 if (this.isPointInTriangle(mousePoint, p4, p5, p6)) {
                     column--;
+
                     if (column % 2 == 0) {
                         row++;
                     }
@@ -179,24 +215,21 @@ var MODULE = (function() {
             var localX = mouseX - this.canvasOriginX;
             var localY = mouseY - this.canvasOriginY;
             var tile = this.getSelectedTile(localX, localY);
-            if(tile.row < this.rows && tile.row > 0 && tile.col < this.cols && tile.col > 0){
+            if(GLOBALS.DEBUG == true){
+                console.log(tile);
+            }
+            if(tile.row < this.rows && tile.row >= 0 && tile.col < this.cols && tile.col >= 0){
                 //console.log(tile);
                 if(this.hexes[tile.col][tile.row].highlighted == false){
                     this.hexes[tile.col][tile.row].highlighted = true;
                 }else{
                     this.hexes[tile.col][tile.row].highlighted = false;
                 }
-                this.init();
+                this.draw();
             }else{
                 console.log("Click out of range");
             }
-        },
-        highlightTile: function (tile) {
-            var y = tile.col % 2 == 0 ? (tile.row * this.height) + this.canvasOriginY + 6 : (tile.row * this.height) + this.canvasOriginY + 6 + (this.height / 2);
-            var x = (tile.col * this.side) + this.canvasOriginX;
-            this.drawHex(x, y - 6, "", "", true); //highlight attacker hex 
-    
-            console.log(this.clicked);
+
         }
     };
 
