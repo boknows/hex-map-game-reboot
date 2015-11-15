@@ -13,10 +13,18 @@ var MODULE = (function() {
     hex.cols = 10;
     hex.hexes = [];
     hex.init = function() {
+        console.log("Initializing new game...");
         this.radius = 20;
         this.side = Math.round((3 / 2) * this.radius);
         this.height = Math.round(Math.sqrt(3) * this.radius);
         this.width = Math.round(2 * this.radius);
+
+        //Set Size of main div to size of canvas
+        $('#primary-panel').css('height', (hex.height * hex.rows)+hex.height*2);
+        hex.canvas.style.width='100%';
+        hex.canvas.style.height='100%';
+        hex.canvas.width  = hex.canvas.offsetWidth;
+        hex.canvas.height = hex.canvas.offsetHeight;
 
         //Set click eventlistener for canvas
         this.canvas.addEventListener("mousedown", this.clickEvent.bind(this), false);
@@ -28,6 +36,7 @@ var MODULE = (function() {
 
         //Draw base grid, then draw overlaid items on top
         this.drawHexGrid(this.rows, this.cols);
+
     }
     hex.draw = function() {
         this.canvas.width = this.canvas.width; //clear canvas
