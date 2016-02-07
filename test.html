@@ -6,53 +6,13 @@
     <meta content="utf-8" http-equiv="encoding">
     <script type="text/javascript" src="js/jquery.min.js"></script>
     <script type="text/javascript" src="js/bootstrap.min.js"></script>
-
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/main.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row-fluid">
-            <div class="col-md-2 sm-pad">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">Player List</h3>
-                    </div>
-                    <div class="panel-body">
-                        
-                    </div>
-                </div>
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">Game Info</h3>
-                    </div>
-                    <div class="panel-body">
-                        <button id="newGameBtn" type="button" class="btn btn-success">New Game</button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-8 sm-pad">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">Map</h3>
-                    </div>
-                    <div id="primary-panel" class="panel-body">
-                        <canvas id="HexCanvas"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-2 sm-pad">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">Unit Info</h3>
-                    </div>
-                    <div class="panel-body">
-                        Panel content
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<canvas id="HexCanvas" style="width: 500px; height: 500px"></canvas>
+<textarea id="console"></textarea>
+<button id="newGameBtn">New Game</button>
 </body>
     <script type="text/javascript" src="js/HexagonGrid.js"></script>
     <script type="text/javascript" src="js/utils.js"></script>

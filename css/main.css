@@ -9,3 +9,8 @@
     padding: 0px;
     position: absolute;
 }
+
+#console {
+	height: 200px;
+	width: 200px;
+}

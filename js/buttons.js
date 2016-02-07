@@ -8,7 +8,7 @@
 
 var MODULE = (function(hex) {
 	$('#newGameBtn').on('click', function () {
-		hex.init();
+		hex.clearMap();
 	});
 
 	return hex;

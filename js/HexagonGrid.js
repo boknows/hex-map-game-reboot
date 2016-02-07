@@ -3,26 +3,29 @@ var GLOBALS = {
 };
 var MODULE = (function() {
     var hex = {};
-    hex.radius = null;
-    hex.height = null;
-    hex.width = null;
-    hex.side = null;
-    hex.canvas = document.getElementById("HexCanvas");
-    hex.ctx = null;
-    hex.rows = 10;
-    hex.cols = 10;
-    hex.hexes = [];
     hex.init = function() {
         console.log("Initializing new game...");
+        hex.radius = null;
+        hex.height = null;
+        hex.width = null;
+        hex.side = null;
+        hex.canvas = document.getElementById("HexCanvas");
+        hex.ctx = null;
+        hex.rows = 10;
+        hex.cols = 10;
+        hex.hexes = [];
         this.radius = 20;
         this.side = Math.round((3 / 2) * this.radius);
         this.height = Math.round(Math.sqrt(3) * this.radius);
         this.width = Math.round(2 * this.radius);
 
-        //Set Size of main div to size of canvas
+        /*
+        Set Size of main div to size of canvas
         $('#primary-panel').css('height', (hex.height * hex.rows)+hex.height*2);
         hex.canvas.style.width='100%';
         hex.canvas.style.height='100%';
+        */
+
         hex.canvas.width  = hex.canvas.offsetWidth;
         hex.canvas.height = hex.canvas.offsetHeight;
 
@@ -217,8 +220,8 @@ var MODULE = (function() {
         return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
     }
     hex.clickEvent = function(e) {
-        var mouseX = e.pageX;
-        var mouseY = e.pageY;
+        var mouseX = e.pageX - window.pageXOffset;
+        var mouseY = e.pageY - window.pageYOffset;
         var localX = mouseX - this.canvasOriginX;
         var localY = mouseY - this.canvasOriginY;
         var tile = this.getSelectedTile(localX, localY);
@@ -227,11 +230,7 @@ var MODULE = (function() {
         }
         if (tile.row < this.rows && tile.row >= 0 && tile.col < this.cols && tile.col >= 0) {
             //console.log(tile);
-            if (this.hexes[tile.col][tile.row].highlighted == false) {
-                this.hexes[tile.col][tile.row].highlighted = true;
-            } else {
-                this.hexes[tile.col][tile.row].highlighted = false;
-            }
+            this.hexes[tile.col][tile.row].highlighted = this.hexes[tile.col][tile.row].highlighted ? false : true;
             this.draw();
             console.log(hex.toCubeCoord(tile.col, tile.row));
         } else {
@@ -239,6 +238,12 @@ var MODULE = (function() {
         }
 
     }
+    hex.clearMap = function(){
+        this.hexes = [];
+        this.defineHexGrid(this.rows, this.cols);
+        this.draw()
+    }
+
 
     hex.init();
     return hex;
