@@ -1,7 +1,15 @@
 var GLOBALS = {
     "DEBUG": false,
+    "gameState": "new",
+    "gameID": 1,
+    "colors": {
+        "tundra": "white",
+        "grassland": "green",
+        "water": "blue",
+        "mountains": "brown"
+    }
 };
-var MODULE = (function() {
+var APP = (function(hex) {
     var hex = {};
     hex.init = function() {
         console.log("Initializing new game...");
@@ -33,7 +41,9 @@ var MODULE = (function() {
         this.canvas.addEventListener("mousedown", this.clickEvent.bind(this), false);
 
         //Defines the hexes array, which provides the structure
-        this.defineHexGrid(this.rows, this.cols);
+        if(GLOBALS.gameState == "new"){
+            this.defineHexGrid(this.rows, this.cols);
+        }
 
         this.ctx = this.canvas.getContext('2d');
 
@@ -46,6 +56,7 @@ var MODULE = (function() {
         this.drawHexGrid(this.rows, this.cols);
     }
     hex.defineHexGrid = function(rows, cols) {
+        var terrains = ["grassland", "mountains", "water", "tundra"];
         this.canvasOriginX = this.canvas.getBoundingClientRect().left;
         this.canvasOriginY = this.canvas.getBoundingClientRect().top;
         var currentHexX;
@@ -54,6 +65,7 @@ var MODULE = (function() {
         for (var col = 0; col < cols; col++) {
             this.hexes.push([]);
             for (var row = 0; row < rows; row++) {
+                var currentTerrain = terrains[Math.floor(Math.random()*terrains.length)];
                 if (!offsetColumn) {
                     currentHexX = (col * this.side) + this.canvasOriginX;
                     currentHexY = (row * this.height) + this.canvasOriginY;
@@ -61,37 +73,53 @@ var MODULE = (function() {
                     currentHexX = col * this.side + this.canvasOriginX;
                     currentHexY = (row * this.height) + this.canvasOriginY + (this.height * 0.5);
                 }
+                /*
+                h: highlighted
+                row: row
+                col: column
+                t: terrain type
+                tc: terrain color
+                txt: text written on hex
+                bor: borders
+                own: current owner
+                u: units
+                */
                 this.hexes[col].push({
-                    "highlighted": false,
-                    "x": currentHexX,
-                    "y": currentHexY,
-                    "text": col + "," + row,
-                    "borders": {
+                    "h": false,
+                    "row": currentHexX,
+                    "col": currentHexY,
+                    "t": currentTerrain,
+                    "tc": GLOBALS.colors[currentTerrain],
+                    "txt": col + "," + row,
+                    "bor": {
                         "n": null,
                         "s": null,
                         "nw": null,
                         "sw": null,
                         "ne": null,
                         "se": null
-                    }
+                    },
+                    "own": null,
+                    "u": null,
                 });
             }
             offsetColumn = !offsetColumn;
         }
+        UTILS.saveData("saveAll");
     }
     hex.drawHexGrid = function(rows, cols) {
         //base grid
         for (var i = 0; i < cols; i++) {
             for (var j = 0; j < rows; j++) {
-                this.drawHex(this.hexes[i][j].x, this.hexes[i][j].y, "#dddddd", this.hexes[i][j].text, false);
+                this.drawHex(this.hexes[i][j].row, this.hexes[i][j].col, this.hexes[i][j].tc, this.hexes[i][j].txt, false);
             }
         }
 
         //overlay items
         for (var i = 0; i < cols; i++) {
             for (var j = 0; j < rows; j++) {
-                if (this.hexes[i][j].highlighted == true) {
-                    this.drawHex(this.hexes[i][j].x, this.hexes[i][j].y, "#dddddd", this.hexes[i][j].text, true);
+                if (this.hexes[i][j].h == true) {
+                    this.drawHex(this.hexes[i][j].row, this.hexes[i][j].col, this.hexes[i][j].tc, this.hexes[i][j].txt, true);
                 }
             }
         }
@@ -230,9 +258,10 @@ var MODULE = (function() {
         }
         if (tile.row < this.rows && tile.row >= 0 && tile.col < this.cols && tile.col >= 0) {
             //console.log(tile);
-            this.hexes[tile.col][tile.row].highlighted = this.hexes[tile.col][tile.row].highlighted ? false : true;
+            this.hexes[tile.col][tile.row].h = this.hexes[tile.col][tile.row].h ? false : true;
+            console.log(this.hexes[tile.col][tile.row]);
+            console.log(this.toCubeCoord(tile.col, tile.row));
             this.draw();
-            console.log(hex.toCubeCoord(tile.col, tile.row));
         } else {
             console.log("Click out of range");
         }
@@ -248,4 +277,4 @@ var MODULE = (function() {
     hex.init();
     return hex;
 
-}());
+}(APP || {}));

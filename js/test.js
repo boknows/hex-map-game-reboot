@@ -12,15 +12,15 @@ var MODULE = (function () {
 	my.moduleMethod = function () {
 		console.log("Method 1!");
 	};
-
+	my.anotherMethod();
 	return my;
 }());
 
-var MODULE = (function (my) {
+var MODULETWO = (function (my) {
 	my.anotherMethod = function () {
 		console.log("Method 2!");
 	};
 	my.moduleMethod();
 	my.anotherMethod();
 	return my;
-}(MODULE));
+}(MODULETWO));
