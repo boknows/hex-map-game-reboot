@@ -1,5 +1,5 @@
 var utils = (function(hex) {
-    hex.saveData = function(param, map, APP) {
+    hex.saveData = function(param, map) {
         if (param == "saveAll"){
             var save = {
                 param: "saveAll",
@@ -17,7 +17,7 @@ var utils = (function(hex) {
                 }
             })
         }
-        APP.hex.clearMap();
+        hex.clearMap();
     } 
     hex.toCubeCoord = function(q, r) {
         /**  Function to convert odd-q offset coordinates to cube coordinates. Reference: http://www.redblobgames.com/grids/hexagons/

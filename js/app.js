@@ -119,7 +119,7 @@ var APP = (function(hex) {
             }
             offsetColumn = !offsetColumn;
         }
-        utils.saveData("saveAll", this.hexes, APP);
+        utils.saveData("saveAll", this.hexes);
     }
     hex.drawHexGrid = function(rows, cols) {
         //base grid
