@@ -1,21 +1,24 @@
-var UTILS = (function(hex) {
-    hex.saveData = function(param) {
+var utils = (function(hex) {
+    hex.saveData = function(param, map, APP) {
         if (param == "saveAll"){
             var save = {
                 param: "saveAll",
-                data: hex.hexes
+                data: JSON.stringify(map)
             };
             $.ajax({
                 type: "POST",
                 url: "save.php",
                 data: save,
+                dataType: 'JSON',
                 success: function(data) {
-                    alert(data);
+                    if(data == "Success"){
+                        console.log("Connected to db.");
+                    }
                 }
             })
         }
+        APP.hex.clearMap();
     } 
-    
     hex.toCubeCoord = function(q, r) {
         /**  Function to convert odd-q offset coordinates to cube coordinates. Reference: http://www.redblobgames.com/grids/hexagons/
          * @param {Number} q - the column of the hex
@@ -150,4 +153,4 @@ var UTILS = (function(hex) {
 
     return hex;
 
-}(UTILS || {}));
+}(utils || {}));

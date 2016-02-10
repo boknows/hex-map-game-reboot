@@ -55,6 +55,18 @@ var APP = (function(hex) {
         this.canvas.width = this.canvas.width; //clear canvas
         this.drawHexGrid(this.rows, this.cols);
     }
+    hex.rowcolToXY = function(row, col){
+        var offsetColumn = (col % 2 == 0) ? false : true;
+        if (!offsetColumn) {
+            x = (col * this.side) + this.canvasOriginX;
+            y = (row * this.height) + this.canvasOriginY;
+        } else {
+            x = col * this.side + this.canvasOriginX;
+            y = (row * this.height) + this.canvasOriginY + (this.height * 0.5);
+        }
+
+        return {x: x, y: y}
+    }
     hex.defineHexGrid = function(rows, cols) {
         var terrains = ["grassland", "mountains", "water", "tundra"];
         this.canvasOriginX = this.canvas.getBoundingClientRect().left;
@@ -86,8 +98,10 @@ var APP = (function(hex) {
                 */
                 this.hexes[col].push({
                     "h": false,
-                    "row": currentHexX,
-                    "col": currentHexY,
+                    "row": row,
+                    "col": col,
+                    "x": this.rowcolToXY(row, col).x,
+                    "y": this.rowcolToXY(row, col).y,
                     "t": currentTerrain,
                     "tc": GLOBALS.colors[currentTerrain],
                     "txt": col + "," + row,
@@ -105,13 +119,13 @@ var APP = (function(hex) {
             }
             offsetColumn = !offsetColumn;
         }
-        UTILS.saveData("saveAll");
+        utils.saveData("saveAll", this.hexes, APP);
     }
     hex.drawHexGrid = function(rows, cols) {
         //base grid
         for (var i = 0; i < cols; i++) {
             for (var j = 0; j < rows; j++) {
-                this.drawHex(this.hexes[i][j].row, this.hexes[i][j].col, this.hexes[i][j].tc, this.hexes[i][j].txt, false);
+                this.drawHex(this.hexes[i][j].x, this.hexes[i][j].y, this.hexes[i][j].tc, this.hexes[i][j].txt, false);
             }
         }
 
@@ -119,7 +133,7 @@ var APP = (function(hex) {
         for (var i = 0; i < cols; i++) {
             for (var j = 0; j < rows; j++) {
                 if (this.hexes[i][j].h == true) {
-                    this.drawHex(this.hexes[i][j].row, this.hexes[i][j].col, this.hexes[i][j].tc, this.hexes[i][j].txt, true);
+                    this.drawHex(this.hexes[i][j].x, this.hexes[i][j].y, this.hexes[i][j].tc, this.hexes[i][j].txt, true);
                 }
             }
         }
@@ -260,7 +274,7 @@ var APP = (function(hex) {
             //console.log(tile);
             this.hexes[tile.col][tile.row].h = this.hexes[tile.col][tile.row].h ? false : true;
             console.log(this.hexes[tile.col][tile.row]);
-            console.log(this.toCubeCoord(tile.col, tile.row));
+            console.log(utils.toCubeCoord(tile.col, tile.row));
             this.draw();
         } else {
             console.log("Click out of range");
