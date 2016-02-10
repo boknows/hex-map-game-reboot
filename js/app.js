@@ -9,7 +9,8 @@ var GLOBALS = {
         "mountains": "brown"
     }
 };
-var APP = (function(hex) {
+
+var app = (function() {
     var hex = {};
     hex.init = function() {
         console.log("Initializing new game...");
@@ -291,4 +292,4 @@ var APP = (function(hex) {
     hex.init();
     return hex;
 
-}(APP || {}));
+}());

@@ -17,7 +17,6 @@ var utils = (function(hex) {
                 }
             })
         }
-        hex.clearMap();
     } 
     hex.toCubeCoord = function(q, r) {
         /**  Function to convert odd-q offset coordinates to cube coordinates. Reference: http://www.redblobgames.com/grids/hexagons/
